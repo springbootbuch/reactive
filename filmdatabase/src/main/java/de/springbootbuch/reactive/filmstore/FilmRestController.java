@@ -1,6 +1,8 @@
 package de.springbootbuch.reactive.filmstore;
 
+import java.time.Duration;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,10 +29,13 @@ public class FilmRestController {
 		return filmRepository.findAll(Sort.by("title").ascending());
 	}
 	
-	@GetMapping("/api/films/{id}")
-	public Mono<Film> getFilm(@PathVariable final String id) {
+	@GetMapping(path = "/api/films/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<FilmWatchedEvent> stream(@PathVariable final String id) {
 		return Mono.justOrEmpty(id)
-			.flatMap(filmRepository::findById);
+			.flatMap(filmRepository::findById)
+			.flatMapMany(film -> Flux.<Film>generate(sink -> sink.next(film)))
+			.zipWith(Flux.interval(Duration.ofSeconds(1)))
+			.map(t -> new FilmWatchedEvent(t.getT1(), t.getT2()));
 	}
 	
 	@GetMapping("/api/films/{id}/actors")
