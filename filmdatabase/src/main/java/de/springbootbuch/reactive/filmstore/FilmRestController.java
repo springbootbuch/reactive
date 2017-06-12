@@ -1,5 +1,6 @@
 package de.springbootbuch.reactive.filmstore;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,7 @@ public class FilmRestController {
 	
 	@GetMapping("/api/films")
 	public Flux<Film> getAll() {
-		return filmRepository.findAll();
+		return filmRepository.findAll(Sort.by("title").ascending());
 	}
 	
 	@GetMapping("/api/films/{id}")
