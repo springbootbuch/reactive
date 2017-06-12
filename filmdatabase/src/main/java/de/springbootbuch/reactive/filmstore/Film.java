@@ -1,6 +1,8 @@
 package de.springbootbuch.reactive.filmstore;
 
-import java.time.Year;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Part of springbootbuch.de.
+ * 
  * @author Michael J. Simons
  * @author @rotnroll666
  */
@@ -18,11 +21,16 @@ public class Film {
 	
 	private final String title;
 	
-	private final Year releaseYear;
+	private final Integer releaseYear;
 	
+	@JsonIgnore
 	private final List<Actor> actors = new ArrayList<>();
 
-	public Film(String title, Year releaseYear) {
+	@JsonCreator
+	public Film(
+		@JsonProperty("title") String title, 
+		@JsonProperty("releaseYear") Integer releaseYear
+	) {
 		this.title = title;
 		this.releaseYear = releaseYear;
 	}
@@ -35,7 +43,7 @@ public class Film {
 		return title;
 	}
 
-	public Year getReleaseYear() {
+	public Integer getReleaseYear() {
 		return releaseYear;
 	}
 
