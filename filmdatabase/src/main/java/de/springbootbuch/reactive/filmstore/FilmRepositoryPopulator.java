@@ -1,9 +1,6 @@
 package de.springbootbuch.reactive.filmstore;
 
-import de.springbootbuch.reactive.filmstore.support.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.springbootbuch.reactive.filmstore.Film;
-import de.springbootbuch.reactive.filmstore.FilmRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -47,8 +44,8 @@ public class FilmRepositoryPopulator implements CommandLineRunner {
 		this.filmRepository
 			.deleteAll()
 			.thenMany(Flux.just(films))
-			.flatMap(m -> this.filmRepository.save((Film)m))
-			.doOnNext(m -> LOG.info("Film '{}' (id={}) saved", m.getTitle(), m.getId()))
+			.flatMap(f -> this.filmRepository.save(f))
+			.doOnNext(f -> LOG.info("Film '{}' (id={}) saved", f.getTitle(), f.getId()))
 			.blockLast();
 	}
 }
