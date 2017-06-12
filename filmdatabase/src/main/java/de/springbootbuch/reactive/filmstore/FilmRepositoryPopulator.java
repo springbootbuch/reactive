@@ -1,5 +1,6 @@
-package de.springbootbuch.reactive.filmstore.support;
+package de.springbootbuch.reactive.filmstore;
 
+import de.springbootbuch.reactive.filmstore.support.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.springbootbuch.reactive.filmstore.Film;
 import de.springbootbuch.reactive.filmstore.FilmRepository;
