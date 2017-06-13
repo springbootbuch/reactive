@@ -7,7 +7,7 @@ package de.springbootbuch.reactive.filmstore;
  * @author @rotnroll666
  */
 public class FilmWatchedEvent {
-	private String id;
+	private final String id;
 	
 	private final String title;
 	
