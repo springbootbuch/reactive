@@ -1,5 +1,8 @@
 package de.springbootbuch.reactive.watchednow;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Part of springbootbuch.de.
  * 
@@ -11,7 +14,8 @@ public class Film {
 	
 	private final String title;
 
-	public Film(String id, String title) {
+	@JsonCreator
+	public Film(@JsonProperty("id") String id, @JsonProperty("title") String title) {
 		this.id = id;
 		this.title = title;
 	}
