@@ -1,5 +1,8 @@
 package de.springbootbuch.reactive.filmstore;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Part of springbootbuch.de.
  * 
@@ -7,27 +10,16 @@ package de.springbootbuch.reactive.filmstore;
  * @author @rotnroll666
  */
 public class FilmWatchedEvent {
-	private final String id;
-	
 	private final String title;
 	
-	private final long duration;
-
-	public FilmWatchedEvent(Film film, long duration) {
-		this.id = film.getId();
-		this.title = film.getTitle();
-		this.duration = duration;
-	}
-
-	public String getId() {
-		return id;
+	@JsonCreator
+	public FilmWatchedEvent(
+		@JsonProperty("title") String title
+	) {
+		this.title = title;
 	}
 
 	public String getTitle() {
 		return title;
-	}
-
-	public long getDuration() {
-		return duration;
 	}
 }
