@@ -40,9 +40,8 @@ public class FilmRestController {
 	}
 	
 	@GetMapping(path = "/api/films/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<Film> stream(@PathVariable final String id) {
-		return Mono.justOrEmpty(id)
-			.flatMap(filmRepository::findById)
+	public Flux<Film> stream(@PathVariable String id) {
+		return filmRepository.findById(id)
 			.flatMapMany(film -> Flux.<Film>generate(sink -> sink.next(film)))
 			.zipWith(Flux.interval(Duration.ofSeconds(1)))
 			.doOnNext(t  -> webClient
@@ -56,9 +55,8 @@ public class FilmRestController {
 	}
 	
 	@GetMapping("/api/films/{id}/actors")
-	public Flux<Actor> getActors(@PathVariable final String id) {
-		return Mono.justOrEmpty(id)
-			.flatMap(filmRepository::findById)
+	public Flux<Actor> getActors(@PathVariable String id) {
+		return filmRepository.findById(id)
 			.flatMapMany(f -> Flux.fromIterable(f.getActors()));
 	}
 }
