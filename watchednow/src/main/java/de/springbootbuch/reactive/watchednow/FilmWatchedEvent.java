@@ -1,6 +1,6 @@
 package de.springbootbuch.reactive.watchednow;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -13,31 +13,50 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class FilmWatchedEvent {
 	private String id;
 
-	private final String filmId;
+	private String filmId;
 
-	private final String title;
+	private String title;
 
-	private final ZonedDateTime watchedOn;
+	private LocalDateTime watchedOn;
 
+	public FilmWatchedEvent() {
+	}
+	
 	public FilmWatchedEvent(Film film) {
 		this.filmId = film.getId();
 		this.title = film.getTitle();
-		this.watchedOn = ZonedDateTime.now();
+		this.watchedOn = LocalDateTime.now();
 	}
 
 	public String getId() {
 		return id;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getFilmId() {
 		return filmId;
+	}
+
+	public void setFilmId(String filmId) {
+		this.filmId = filmId;
 	}
 
 	public String getTitle() {
 		return title;
 	}
 
-	public ZonedDateTime getWatchedOn() {
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public LocalDateTime getWatchedOn() {
 		return watchedOn;
 	}
+
+	public void setWatchedOn(LocalDateTime watchedOn) {
+		this.watchedOn = watchedOn;
+	}	
 }
