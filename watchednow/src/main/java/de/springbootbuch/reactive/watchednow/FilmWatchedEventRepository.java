@@ -1,6 +1,8 @@
 package de.springbootbuch.reactive.watchednow;
 
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.mongodb.repository.Tailable;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 
 /**
  * Part of springbootbuch.de.
@@ -9,5 +11,8 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
  * @author @rotnroll666
  */
 public interface FilmWatchedEventRepository 
-	extends ReactiveMongoRepository<FilmWatchedEvent, String> {
+	extends ReactiveCrudRepository<FilmWatchedEvent, String> {
+	
+	@Tailable
+	Flux<FilmWatchedEvent> streamAllBy();
 }
