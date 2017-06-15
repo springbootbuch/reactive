@@ -1,12 +1,22 @@
 package de.springbootbuch.reactive.watchednow;
 
+import java.time.LocalDateTime;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.core.CollectionOptions;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+import reactor.core.publisher.Mono;
 
 /**
  * Part of springbootbuch.de.
@@ -22,15 +32,53 @@ public class Application {
 	}
 
 	@Bean
-	RouterFunction<?> routerFunction(final FilmWatchedEventRepository filmWatchedEventRepository) {
-		return route(
-			POST("/api/filmWatched"), request -> 
-			ok().body(
-				request.bodyToMono(Film.class)
-					.map(FilmWatchedEvent::new)
-					.flatMap(filmWatchedEventRepository::save), 
-				FilmWatchedEvent.class
-			)
+	RouterFunction<?> routerFunction(final Handler handler) {
+		return route(POST("/api/filmWatched"), handler::filmWatched)
+			.andRoute(GET("/api/watchedRightNow"), handler::watchedRightNow);
+	}
+	
+	@Bean
+	ApplicationRunner applicationRunner(MongoOperations operations) {
+		return args -> {
+			if (operations.collectionExists(FilmWatchedEvent.class)) {
+				operations.dropCollection(FilmWatchedEvent.class);
+			}
+			operations.createCollection(
+				FilmWatchedEvent.class, 
+				new CollectionOptions(1024 * 1024, 100, true));
+		};
+	}
+}
+
+@Component
+class Handler {
+
+	private final FilmWatchedEventRepository filmWatchedEventRepository;
+
+	Handler(FilmWatchedEventRepository filmWatchedEventRepository) {
+		this.filmWatchedEventRepository = filmWatchedEventRepository;
+	}
+
+	Mono<ServerResponse> filmWatched(ServerRequest request) {
+		return ok().body(
+			request.bodyToMono(Film.class)
+				.map(FilmWatchedEvent::new)
+				.flatMap(filmWatchedEventRepository::save),
+			FilmWatchedEvent.class
+		);
+	}
+	
+	Mono<ServerResponse> watchedRightNow(ServerRequest request) {
+		return ok()
+			.contentType(MediaType.TEXT_EVENT_STREAM)
+			.body(
+				filmWatchedEventRepository
+					.streamAllBy()
+					.filter(e -> e.getWatchedOn()
+						.isAfter(LocalDateTime.now().minusSeconds(10))
+					)
+			, 
+			FilmWatchedEvent.class
 		);
 	}
 }
