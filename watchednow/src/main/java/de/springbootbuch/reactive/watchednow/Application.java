@@ -44,8 +44,11 @@ public class Application {
 				operations.dropCollection(FilmWatchedEvent.class);
 			}
 			operations.createCollection(
-				FilmWatchedEvent.class, 
-				new CollectionOptions(1024 * 1024, 100, true));
+				FilmWatchedEvent.class,
+				CollectionOptions.empty()
+					.maxDocuments(100L)
+					.size(1_048_576L)
+					.capped());
 		};
 	}
 }
