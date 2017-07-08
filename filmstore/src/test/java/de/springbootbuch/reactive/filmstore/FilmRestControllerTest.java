@@ -39,8 +39,8 @@ public class FilmRestControllerTest {
 				.expectHeader().contentType(TEXT_EVENT_STREAM)
 				.returnResult(Film.class);
 
-		StepVerifier.create(result.getResponseBody())
-				.consumeNextWith(person -> assertThat(person.getTitle(), is(equalTo("ACADEMY DINOSAUR"))))
+		StepVerifier.create(result.getResponseBody())				
+				.consumeNextWith(film -> assertThat(film.getTitle(), is(equalTo("ACADEMY DINOSAUR"))))
 				.expectNextCount(9)
 				.expectComplete()
 				.verify();
