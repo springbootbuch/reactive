@@ -1,5 +1,7 @@
 package de.springbootbuch.reactive.filmstore;
 
+import java.time.Duration;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,5 +36,15 @@ public class DemoRestController {
 			.flatMapMany(n -> Flux.generate(s -> s.next(n)))
 			.zipWith(Flux.range(1, 23))
 			.map(t -> "Hello, " + t.getT1() + "\n");
+	}
+	
+	@GetMapping(
+		path = "/streamgreetings", 
+		produces = MediaType.TEXT_EVENT_STREAM_VALUE
+	)
+	public Flux<String> streamGreetings() {
+		return Flux.interval(Duration.ofSeconds(1))
+			.log()
+			.map(i -> "Hello, Listener");
 	}
 }

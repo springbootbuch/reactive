@@ -42,19 +42,20 @@ public class Application {
 
 	@Bean
 	CommandLineRunner streamingClient(WebClient client) {
-		return args -> client
+		return args -> 
+			client
 				.get().uri("/films")
-				.retrieve()
-				.bodyToFlux(Film.class)
+				.retrieve().bodyToFlux(Film.class)
 				.filter(film -> 
 					film.getTitle().toLowerCase(Locale.GERMAN)
 						.contains("goldfinger"))
-				.flatMap(film
-					-> client.get()
+				.flatMap(film -> 
+					client.get()
 					.uri("/films/{id}/stream", film.getId())
 					.retrieve()
 					.bodyToFlux(Film.class))
-				.subscribe(film -> LOG.info("Streaming {}...", film.getTitle()));
-			
+				.subscribe(film -> 
+					LOG.info("Streaming {}...", film.getTitle())
+				);
 	}
 }

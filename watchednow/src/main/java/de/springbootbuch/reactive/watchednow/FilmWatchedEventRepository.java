@@ -10,8 +10,8 @@ import reactor.core.publisher.Flux;
  * @author Michael J. Simons
  * @author @rotnroll666
  */
-public interface FilmWatchedEventRepository 
-	extends ReactiveCrudRepository<FilmWatchedEvent, String> {
+public interface FilmWatchedEventRepository  extends 
+	ReactiveCrudRepository<FilmWatchedEvent, String> {
 	
 	@Tailable
 	Flux<FilmWatchedEvent> streamAllBy();

@@ -1,6 +1,7 @@
 package de.springbootbuch.reactive.filmstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -34,18 +35,24 @@ public class FilmRepositoryPopulator implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
-		// This is a blocking operation...
-		// Didn't find a simple way to present it in the book.
-		// Feel free to send me a PR :)
-		final Film[] films = this.objectMapper.readValue(
-			this.resourceLoader.getResource("classpath:/data.json").getInputStream(),
-			Film[].class);
+		final Film[] films = loadFilms();
 
 		this.filmRepository
 			.deleteAll()
 			.thenMany(Flux.just(films))
 			.flatMap(f -> this.filmRepository.save(f))
-			.doOnNext(f -> LOG.info("Film '{}' (id={}) saved", f.getTitle(), f.getId()))
+			.doOnNext(f -> 
+				LOG.info("Film '{}' (id={}) saved", 
+					f.getTitle(), f.getId()))
 			.blockLast();
+	}
+
+	private Film[] loadFilms() throws IOException {
+		// This is a blocking operation...
+		// Didn't find a simple way to present it in the book.
+		// Feel free to send me a PR :)
+		return this.objectMapper.readValue(
+				this.resourceLoader.getResource("classpath:/data.json").getInputStream(),
+				Film[].class);
 	}
 }

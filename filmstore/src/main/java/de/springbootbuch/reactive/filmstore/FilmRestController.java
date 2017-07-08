@@ -27,31 +27,41 @@ public class FilmRestController {
 	
 	private final FilmRepository filmRepository;
 	
-	private final WebClient webClient;
+	private final WebClient client;
 
 	public FilmRestController(FilmRepository filmRepository, WebClient webClient) {
 		this.filmRepository = filmRepository;
-		this.webClient = webClient;
+		this.client = webClient;
 	}
 	
 	@GetMapping("/api/films")
 	public Flux<Film> getAll() {
-		return filmRepository.findAll(Sort.by("title").ascending());
+		return filmRepository
+			.findAll(Sort.by("title").ascending());
 	}
 	
-	@GetMapping(path = "/api/films/{id}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(
+		path = "/api/films/{id}/stream", 
+		produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Film> stream(@PathVariable String id) {
 		return filmRepository.findById(id)
-			.flatMapMany(film -> Flux.<Film>generate(sink -> sink.next(film)))
+			.flatMapMany(film -> 
+				Flux.<Film>generate(sink -> sink.next(film)))
 			.zipWith(Flux.interval(Duration.ofSeconds(1)))
-			.doOnNext(t  -> webClient
-				.post().uri("/api/filmWatched").accept(MediaType.TEXT_EVENT_STREAM)
-				.body(Mono.just(t.getT1()), Film.class)
-				.retrieve()
-				.bodyToFlux(FilmWatchedEvent.class)
-				.subscribe(event -> LOG.info("Watched {} for {}s", event.getTitle(), t.getT2()))
-			)
+			.doOnNext(this::publishWatchedFilm)
 			.map(Tuple2::getT1);
+	}
+	
+	void publishWatchedFilm(Tuple2<Film, Long> t) {
+		client
+			.post().uri("/api/filmWatched")
+			.accept(MediaType.TEXT_EVENT_STREAM)
+			.body(Mono.just(t.getT1()), Film.class)
+			.retrieve().bodyToFlux(FilmWatchedEvent.class)
+			.subscribe(event -> 
+				LOG.info("Watched {} for {}s", 
+					event.getTitle(), t.getT2())
+			);
 	}
 	
 	@GetMapping("/api/films/{id}/actors")
