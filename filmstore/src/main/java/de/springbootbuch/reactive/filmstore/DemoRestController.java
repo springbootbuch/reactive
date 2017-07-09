@@ -20,9 +20,9 @@ import reactor.core.publisher.Mono;
 public class DemoRestController {
 	@GetMapping("/helloworld")
 	public Mono<String> getGreeting(
-		@RequestParam(defaultValue = "Welt") String name
+		@RequestParam(defaultValue = "World") String name
 	) {
-		return Mono.just("Hallo")
+		return Mono.just("Hello")
 			.flatMap(s -> Mono
 				.just(s + ", " + name + "!\n")
 			);
