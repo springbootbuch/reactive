@@ -1,7 +1,8 @@
 package de.springbootbuch.reactive.watchednow;
 
-import java.time.LocalDateTime;
 import static java.time.LocalDateTime.now;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,13 +10,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
 import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
+import static org.springframework.http.MediaType.TEXT_HTML;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -32,22 +37,33 @@ public class Application {
 	}
 
 	@Bean
-	Handler handler(
+	ApiHandler apiHandler(
 		FilmWatchedEventRepository repository
 	) {
-		return new Handler(repository);
+		return new ApiHandler(repository);
 	}
 	
 	@Bean
-	RouterFunction<?> routerFunction(Handler handler) {
-		return 
-			 route(POST("/api/filmWatched"), 
-				 handler::filmWatched)
-			.andRoute(
-				GET("/api/watchedRightNow"), 
-				handler::watchedRightNow);
+	SiteHandler siteHandler(
+		FilmWatchedEventRepository repository
+	) {
+		return new SiteHandler(repository);
 	}
-	
+
+	@Bean
+	RouterFunction<?> routerFunction(
+		SiteHandler siteHandler, ApiHandler apiHandler
+	) {
+		return
+			 route(GET("/"), siteHandler::index)
+			.andNest(path("/api"),
+				 route(POST("/filmWatched"),
+					apiHandler::filmWatched)
+				.andRoute(
+					GET("/watchedRightNow"),
+					apiHandler::watchedRightNow));
+	}
+
 	@Bean
 	ApplicationRunner applicationRunner(MongoOperations operations) {
 		return args -> {
@@ -64,11 +80,11 @@ public class Application {
 	}
 }
 
-class Handler {
+class ApiHandler {
 
 	final FilmWatchedEventRepository repository;
 
-	Handler(FilmWatchedEventRepository repository) {
+	ApiHandler(FilmWatchedEventRepository repository) {
 		this.repository = repository;
 	}
 
@@ -82,7 +98,7 @@ class Handler {
 			FilmWatchedEvent.class
 		);
 	}
-	
+
 	Mono<ServerResponse> watchedRightNow(
 		ServerRequest request
 	) {
@@ -93,8 +109,31 @@ class Handler {
 					.filter(e -> e.getWatchedOn()
 						.isAfter(now().minusSeconds(10))
 					)
-			, 
+			,
 			FilmWatchedEvent.class
 		);
+	}
+}
+
+class SiteHandler {
+
+	final FilmWatchedEventRepository repository;
+
+	SiteHandler(FilmWatchedEventRepository repository) {
+		this.repository = repository;
+	}
+
+	Mono<ServerResponse> index(ServerRequest request) {
+		Flux<String> filmsBeingWatched =
+			repository.streamAllBy()
+				.map(f -> f.getTitle())
+				.distinct();
+
+		final Map<String, Object> model = new HashMap<>();
+		model.put("filmsBeingWatched",
+			new ReactiveDataDriverContextVariable(
+				filmsBeingWatched, 1));
+		return ok().contentType(TEXT_HTML)
+			.render("index", model);
 	}
 }
