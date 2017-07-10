@@ -1,6 +1,5 @@
 package de.springbootbuch.reactive.filmstore;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
@@ -30,20 +29,22 @@ public class FilmRestControllerTest {
 	private WebTestClient client;
 	
 	@Test
-	public void testSomeMethod() {
-		FluxExchangeResult<Film> result = this.client.get()
-				.uri("/api/films")
-				.accept(TEXT_EVENT_STREAM)
-				.exchange()
-				.expectStatus().isOk()
-				.expectHeader().contentType(TEXT_EVENT_STREAM)
-				.returnResult(Film.class);
-
+	public void filmApiShouldWork() {
+		FluxExchangeResult<Film> result = client.get()
+			.uri("/api/films")
+			.accept(TEXT_EVENT_STREAM)
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentType(TEXT_EVENT_STREAM)
+			.returnResult(Film.class);
+		
 		StepVerifier.create(result.getResponseBody())				
-				.consumeNextWith(film -> assertThat(film.getTitle(), is(equalTo("ACADEMY DINOSAUR"))))
-				.expectNextCount(9)
-				.expectComplete()
-				.verify();
+			.consumeNextWith(film -> 
+				assertThat(film.getTitle(), 
+					is("ACADEMY DINOSAUR"))
+			)
+			.expectNextCount(9)
+			.expectComplete()
+			.verify();
 	}
-	
 }

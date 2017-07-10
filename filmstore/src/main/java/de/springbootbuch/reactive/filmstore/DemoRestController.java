@@ -42,9 +42,9 @@ public class DemoRestController {
 		path = "/streamgreetings", 
 		produces = MediaType.TEXT_EVENT_STREAM_VALUE
 	)
-	public Flux<String> streamGreetings() {
+	public Flux<String> streamGreetings() {		
 		return Flux.interval(Duration.ofSeconds(1))
 			.log()
-			.map(i -> "Hello, Listener");
+			.map(i -> String.format("Hello (%d)", i));
 	}
 }
