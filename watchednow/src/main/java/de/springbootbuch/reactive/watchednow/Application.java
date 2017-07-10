@@ -1,14 +1,14 @@
 package de.springbootbuch.reactive.watchednow;
 
 import java.time.LocalDateTime;
+import static java.time.LocalDateTime.now;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -32,9 +32,20 @@ public class Application {
 	}
 
 	@Bean
-	RouterFunction<?> routerFunction(final Handler handler) {
-		return route(POST("/api/filmWatched"), handler::filmWatched)
-			.andRoute(GET("/api/watchedRightNow"), handler::watchedRightNow);
+	Handler handler(
+		FilmWatchedEventRepository repository
+	) {
+		return new Handler(repository);
+	}
+	
+	@Bean
+	RouterFunction<?> routerFunction(Handler handler) {
+		return 
+			 route(POST("/api/filmWatched"), 
+				 handler::filmWatched)
+			.andRoute(
+				GET("/api/watchedRightNow"), 
+				handler::watchedRightNow);
 	}
 	
 	@Bean
@@ -53,32 +64,34 @@ public class Application {
 	}
 }
 
-@Component
 class Handler {
 
-	private final FilmWatchedEventRepository filmWatchedEventRepository;
+	final FilmWatchedEventRepository repository;
 
-	Handler(FilmWatchedEventRepository filmWatchedEventRepository) {
-		this.filmWatchedEventRepository = filmWatchedEventRepository;
+	Handler(FilmWatchedEventRepository repository) {
+		this.repository = repository;
 	}
 
-	Mono<ServerResponse> filmWatched(ServerRequest request) {
+	Mono<ServerResponse> filmWatched(
+		ServerRequest request
+	) {
 		return ok().body(
 			request.bodyToMono(Film.class)
 				.map(FilmWatchedEvent::new)
-				.flatMap(filmWatchedEventRepository::save),
+				.flatMap(repository::save),
 			FilmWatchedEvent.class
 		);
 	}
 	
-	Mono<ServerResponse> watchedRightNow(ServerRequest request) {
+	Mono<ServerResponse> watchedRightNow(
+		ServerRequest request
+	) {
 		return ok()
-			.contentType(MediaType.TEXT_EVENT_STREAM)
-			.body(
-				filmWatchedEventRepository
+			.contentType(TEXT_EVENT_STREAM)
+			.body(repository
 					.streamAllBy()
 					.filter(e -> e.getWatchedOn()
-						.isAfter(LocalDateTime.now().minusSeconds(10))
+						.isAfter(now().minusSeconds(10))
 					)
 			, 
 			FilmWatchedEvent.class
