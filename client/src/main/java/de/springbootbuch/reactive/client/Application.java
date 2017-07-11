@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -37,7 +38,9 @@ public class Application {
 
 	@Bean
 	WebClient webClient() {
-		return WebClient.create("http://localhost:8080/api");
+		return WebClient
+			.create("http://localhost:8080/api")
+			.filter(basicAuthentication("spring", "boot"));
 	}
 
 	@Bean
