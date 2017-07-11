@@ -25,7 +25,7 @@ curl -u spring:boot http://localhost:8080/api/films/foobar/stream
 You can see the list of films being streamed with
 
 ```
-curl  http://localhost:8081/api/watchedRightNow
+curl -u visitor:visitor http://localhost:8081/api/watchedRightNow
 ```
 
 Or open http://localhost:8081 in Chrome.
