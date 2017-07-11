@@ -12,11 +12,12 @@ import static org.springframework.http.MediaType.TEXT_EVENT_STREAM;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 import reactor.test.StepVerifier;
 
 /**
  * Part of springbootbuch.de.
- * 
+ *
  * @author Michael J. Simons
  * @author @rotnroll666
  */
@@ -24,23 +25,25 @@ import reactor.test.StepVerifier;
 @SpringBootTest(webEnvironment = MOCK)
 @AutoConfigureWebTestClient
 public class FilmRestControllerTest {
-	
+
 	@Autowired
 	private WebTestClient client;
-	
+
 	@Test
 	public void filmApiShouldWork() {
-		FluxExchangeResult<Film> result = client.get()
+		FluxExchangeResult<Film> result = client
+			.filter(basicAuthentication("spring","boot"))
+			.get()
 			.uri("/api/films")
 			.accept(TEXT_EVENT_STREAM)
 			.exchange()
 			.expectStatus().isOk()
 			.expectHeader().contentType(TEXT_EVENT_STREAM)
 			.returnResult(Film.class);
-		
-		StepVerifier.create(result.getResponseBody())				
-			.consumeNextWith(film -> 
-				assertThat(film.getTitle(), 
+
+		StepVerifier.create(result.getResponseBody())
+			.consumeNextWith(film ->
+				assertThat(film.getTitle(),
 					is("ACADEMY DINOSAUR"))
 			)
 			.expectNextCount(9)
