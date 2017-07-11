@@ -59,6 +59,14 @@
     <!-- DELETE ME -->
     <repositories>
         <repository>
+            <id>oss-snapshots</id>
+            <name>Sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>spring-snapshots</id>
             <name>Spring Snapshots</name>
             <url>https://repo.spring.io/snapshot</url>
