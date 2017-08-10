@@ -40,7 +40,9 @@ public class Application {
 	WebClient webClient() {
 		return WebClient
 			.create("http://localhost:8080/api")
-			.filter(basicAuthentication("spring", "boot"));
+			.mutate()
+			.filter(basicAuthentication("spring", "boot"))
+			.build();
 	}
 
 	@Bean

@@ -24,6 +24,7 @@ public class Application {
 	WebClient webClient(@Value("${watchednow.service.url:http://localhost:8081}") String url) {
 		return WebClient
 			.create(url)
-			.filter(basicAuthentication("film", "store"));
+			.mutate().filter(basicAuthentication("film", "store"))
+			.build();
 	}
 }

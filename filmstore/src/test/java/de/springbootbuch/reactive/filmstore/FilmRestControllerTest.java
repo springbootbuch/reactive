@@ -32,9 +32,10 @@ public class FilmRestControllerTest {
 	@Test
 	public void filmApiShouldWork() {
 		FluxExchangeResult<Film> result = client
-			.filter(basicAuthentication("spring","boot"))
-			.get()
-			.uri("/api/films")
+			.mutate()
+				.filter(basicAuthentication("spring","boot"))
+			.build()
+			.get().uri("/api/films")
 			.accept(TEXT_EVENT_STREAM)
 			.exchange()
 			.expectStatus().isOk()
