@@ -17,11 +17,6 @@
     <artifactId>watchednow</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <properties>
-        <thymeleaf.version>3.0.7-SNAPSHOT</thymeleaf.version>
-        <thymeleaf-spring5.version>3.0.7-SNAPSHOT</thymeleaf-spring5.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
