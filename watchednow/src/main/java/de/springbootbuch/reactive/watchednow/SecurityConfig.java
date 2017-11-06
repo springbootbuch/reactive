@@ -2,11 +2,10 @@ package de.springbootbuch.reactive.watchednow;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.web.server.HttpSecurity;
-
-import org.springframework.security.core.userdetails.MapUserDetailsRepository;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 /**
@@ -19,14 +18,14 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
 
 	@Bean
-	public UserDetailsRepository userDetailsRepository() {
-		return new MapUserDetailsRepository(
+	public ReactiveUserDetailsService userDetailsService() {
+		return new MapReactiveUserDetailsService(
 			User.withUsername("visitor")
-				.password("visitor")
+				.password("{noop}visitor")
 				.roles("USER")
 				.build(),
 			User.withUsername("film")
-				.password("store")
+				.password("{noop}store")
 				.roles("STORE")
 				.build()
 		);
@@ -34,7 +33,7 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityWebFilterChain springSecurity(
-		HttpSecurity http
+		ServerHttpSecurity http
 	) {
 		return http
 			.authorizeExchange()

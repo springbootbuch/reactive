@@ -1,8 +1,8 @@
 package de.springbootbuch.reactive.filmstore;
 
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsRepository;
 import reactor.core.publisher.Mono;
 
 /**
@@ -11,9 +11,8 @@ import reactor.core.publisher.Mono;
  * @author Michael J. Simons
  * @author @rotnroll666
  */
-public class UserDetailsRepositoryImpl 
-	implements UserDetailsRepository 
-{
+public class ReactiveUserDetailsServiceImpl 
+	implements ReactiveUserDetailsService {
 	@Override
 	public Mono<UserDetails> findByUsername(
 		String username
