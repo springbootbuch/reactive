@@ -42,7 +42,7 @@ public class SecurityConfig {
 			.pathMatchers("/api/filmWatched")
 				.hasRole("STORE")
 			.anyExchange().permitAll()
-			.and()
+			.and().httpBasic().and()
 			.build();
 	}
 }
