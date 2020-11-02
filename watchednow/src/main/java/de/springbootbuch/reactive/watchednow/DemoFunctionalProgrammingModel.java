@@ -1,17 +1,20 @@
 package de.springbootbuch.reactive.watchednow;
 
-import java.util.concurrent.CountDownLatch;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.ServerResponse.*;
+
+import reactor.core.publisher.Mono;
+import reactor.netty.http.server.HttpServer;
+
+import java.util.concurrent.CountDownLatch;
+
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.reactive.function.server.HandlerFunction;
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
-import reactor.core.publisher.Mono;
-import reactor.ipc.netty.http.server.HttpServer;
 
 /**
  * Part of springbootbuch.de.
@@ -53,8 +56,9 @@ public class DemoFunctionalProgrammingModel {
 
 		HttpHandler httpHandler = RouterFunctions
 			.toHttpHandler(routes);
-		HttpServer.create(8080)
-			.newHandler(new ReactorHttpHandlerAdapter(httpHandler))
+		HttpServer.create().port(8080)
+			.handle(new ReactorHttpHandlerAdapter(httpHandler))
+			.bind()
 			.block();
 
 		CountDownLatch latch = new CountDownLatch(1);

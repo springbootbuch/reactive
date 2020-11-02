@@ -34,7 +34,9 @@ public class FilmRestController {
 		this.client = webClient;
 	}
 	
-	@GetMapping("/api/films")
+	@GetMapping(
+		path = "/api/films",
+		produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<Film> getAll() {
 		return filmRepository
 			.findAll(Sort.by("title").ascending());

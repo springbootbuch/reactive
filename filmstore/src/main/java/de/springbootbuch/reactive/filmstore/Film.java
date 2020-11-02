@@ -24,7 +24,7 @@ public class Film {
 	private final Integer releaseYear;
 	
 	@JsonIgnore
-	private final List<Actor> actors = new ArrayList<>();
+	private List<Actor> actors = new ArrayList<>();
 
 	@JsonCreator
 	public Film(
